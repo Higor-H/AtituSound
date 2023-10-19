@@ -21,13 +21,20 @@ public class ArtistServiceImpl implements ArtistService {
 		this.repository = repository;
 	}
 
-	protected void validate(ArtistEntity entity) throws Exception{
-		if (entity.getName() == null || entity.getName().isEmpty()) 
+	protected void validate(ArtistEntity entity) throws Exception {
+		if (entity.getName() == null || entity.getName().isEmpty())
 			throw new Exception("Campo nome requerido!");
-		if(repository.existsByName(entity.getName())) 
-			throw new Exception("Já exite registro com esse nome!");
+		if (entity.getUuid() == null) {
+			if (repository.existsByName(entity.getName()))
+				throw new Exception("Já exite registro com esse nome!");
+		} else {
+			if(!repository.existsById(entity.getUuid()))
+				throw new Exception("Registro não encontrado com esse UUID!");
+			if (repository.existsByNameAndUuidNot(entity.getName(), entity.getUuid()))
+				throw new Exception("Já exite registro com esse nome!");
+		}
 	}
-	
+
 	@Override
 	public ArtistEntity save(ArtistEntity entity) throws Exception {
 		validate(entity);
@@ -47,6 +54,14 @@ public class ArtistServiceImpl implements ArtistService {
 	@Override
 	public Optional<ArtistEntity> findById(UUID uuid) {
 		return repository.findById(uuid);
+	}
+
+	@Override
+	public void deleteById(UUID uuid) throws Exception {
+		if (!repository.existsById(uuid))
+			throw new Exception("Não existe registro com esse UUID!");
+		repository.deleteById(uuid);
+		
 	}
 
 }

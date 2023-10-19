@@ -12,9 +12,11 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +45,30 @@ public class ArtistController {
 		newArtist.setName(dto.getName());
 		newArtist.setImage(dto.getImage());
 		return newArtist;
+	}
+	
+	//TODO mudar os nomes para ingles!!
+	@PutMapping("/{uuid}")
+	public ResponseEntity<ArtistEntity> alterar(@PathVariable UUID uuid, @RequestBody ArtistDTO dto) {
+		ArtistEntity entidade = convertDTO2Entity(dto);
+		entidade.setUuid(uuid);
+		try {
+			service.save(entidade);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header("error", e.getMessage()).build();
+		}
+		return ResponseEntity.ok(entidade);
+	}
+	
+	//TODO mudar os nomes para ingles!!
+	@DeleteMapping("/{uuid}")
+	public ResponseEntity<?> deletar(@PathVariable UUID uuid){
+		try {
+			service.deleteById(uuid);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().header("error", e.getMessage()).build();
+		}
+		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping
